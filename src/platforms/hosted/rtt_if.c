@@ -34,15 +34,17 @@
 #ifndef WIN32
 #include <termios.h>
 
+typedef struct termios terminal_io_state_s;
+
 /* linux */
-static struct termios saved_ttystate;
+static terminal_io_state_s saved_ttystate;
 static bool tty_saved = false;
 
 /* set up and tear down */
 
 int rtt_if_init()
 {
-	struct termios ttystate;
+	terminal_io_state_s ttystate;
 	tcgetattr(STDIN_FILENO, &saved_ttystate);
 	tty_saved = true;
 	tcgetattr(STDIN_FILENO, &ttystate);
@@ -66,7 +68,8 @@ int rtt_if_exit()
 
 uint32_t rtt_write(const char *buf, uint32_t len)
 {
-	write(1, buf, len);
+	int unused = write(1, buf, len);
+	(void)unused;
 	return len;
 }
 
@@ -77,7 +80,8 @@ int32_t rtt_getchar()
 	char ch;
 	int len;
 	len = read(0, &ch, 1);
-	if (len == 1) return ch;
+	if (len == 1)
+		return ch;
 	return -1;
 }
 

@@ -27,10 +27,9 @@ endif
 
 VPATH += platforms/stm32
 
-SRC += 	cdcacm.c	\
-	traceswodecode.c	\
+SRC +=               \
+	traceswodecode.c \
 	traceswo.c	\
-	usbuart.c	\
 	serialno.c	\
 	timing.c	\
 	timing_stm32.c	\
@@ -39,14 +38,10 @@ ifneq ($(BMP_BOOTLOADER), 1)
 all:	blackmagic.bin
 else
 all:	blackmagic.bin  blackmagic_dfu.bin blackmagic_dfu.hex
-blackmagic_dfu: usbdfu.o dfucore.o dfu_f4.o serialno.o
-	$(CC) $^ -o $@ $(LDFLAGS_BOOT)
-
-blackmagic_dfu.bin:    blackmagic_dfu
-	$(OBJCOPY) -O binary $^ $@
-
-blackmagic_dfu.hex:    blackmagic_dfu
-	$(OBJCOPY) -O ihex $^ $@
+blackmagic_dfu.elf: usbdfu.o dfucore.o dfu_f4.o serialno.o
+	@echo "  LD      $@"
+	$(Q)$(CC) $^ -o $@ $(LDFLAGS_BOOT)
 endif
+
 host_clean:
 	-$(Q)$(RM) blackmagic.bin
